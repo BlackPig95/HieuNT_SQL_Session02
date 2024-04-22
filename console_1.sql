@@ -236,13 +236,14 @@ from phieuxuat px
 select *
 from khachhang kh
 #Vì ngaysinh của khách hàng là dạng datetime => Cần chuyển về date trước rồi mới month
-where  month(date (kh.ngaysinh)) = month(curdate());
+where month(date(kh.ngaysinh)) = month(curdate());
 # 8. Liệt kê các hóa đơn bán hàng từ ngày 15/04/2018 đến 15/05/2018 gồm các
 # thông tin: số phiếu xuất, nhân viên bán hàng, ngày bán, mã sản phẩm, tên
 # sản phẩm, đơn vị tính, số lượng, giá bán, doanh thu
 insert
 into PhieuXuat (soPX, maNv, maKh, ngayban, ghichu)
-VALUES ('PX003', 'NV01', 'KH01', '2018-04-30', 'ghichuphieuxuat1'), ('px004', 'nv02', 'kH02', '2018-05-14', 'ghichuphieuxuat2');
+VALUES ('PX003', 'NV01', 'KH01', '2018-04-30', 'ghichuphieuxuat1'),
+       ('px004', 'nv02', 'kH02', '2018-05-14', 'ghichuphieuxuat2');
 insert into CtPhieuXuat (soPX, maSP, soluong, giaban)
 VALUES ('px003', 'sp02', 3, 2.55),
        ('px003', 'sp01', 4, 3.55),
@@ -432,8 +433,12 @@ from nhanvien nv;
 select countnam, countnu
 from ((select count(nv.gioitinh) as countnam from nhanvien nv where nv.gioitinh = 1)
     as nam join (select count(nv.gioitinh) as countnu from nhanvien nv where nv.gioitinh = 0) as nu);
-#Cách 3 nhưng không đặt được tên cho cột
-select count(nv.gioitinh)
+#Cách 3
+select case nv.gioitinh
+           when 1 then 'nam'
+           when 0 then 'nu'
+           end as gioitinh,
+       count(nv.gioitinh)
 from nhanvien nv
 group by nv.gioitinh;
 # 24.Cho biết mã nhân viên, tên nhân viên, số năm làm việc của những nhân viên
@@ -447,7 +452,14 @@ from nhanvien nv
 group by manv;
 # 25.Hãy cho biết họ tên của những nhân viên đã đến tuổi về hưu (nam:60 tuổi,
 # nữ: 55 tuổi)
-select nv.hoten
+insert into nhanvien (manv, hoten, gioitinh, diachi, ngaysinh, dienthoai, email, noisinh, ngayvaolam, maNQL)
+VALUES ('NV10', 'nhanvienvehuu', 1, 'diachi', '1950-1-1', 'dienthoai', 'email', 'noisinh', '2022-2-2', 'NQL1');
+select nv.hoten,
+       case nv.gioitinh
+           when 1 then 'nam'
+           when 0 then 'nu'
+           end                             as gioitinh,
+       year(curdate()) - year(nv.ngaysinh) as tuoinhanvien
 from nhanvien nv
 where (case
            when nv.gioitinh = 1 then year(curdate()) - year(nv.ngaysinh) >= 60
@@ -465,14 +477,15 @@ from nhanvien nv;
 # niên <1 năm thưởng 200.000 - 1 năm <= thâm niên < 3 năm thưởng
 # 400.000 - 3 năm <= thâm niên < 5 năm thưởng 600.000 - 5 năm <= thâm
 # niên < 10 năm thưởng 800.000 - thâm niên >= 10 năm thưởng 1.000.000
-select nv.hoten, case
-    when year(now()) - year(nv.ngayvaolam) <1 then '200k'
-    when year(now()) - year(nv.ngayvaolam) >=1 and year(now()) - year(nv.ngayvaolam) <3 then '400k'
-    when year(now()) - year(nv.ngayvaolam) >=3 and year(now()) - year(nv.ngayvaolam) <5 then '600k'
-    when year(now()) - year(nv.ngayvaolam) >=5 and year(now()) - year(nv.ngayvaolam) <10 then '800k'
-    when year(now()) - year(nv.ngayvaolam) >=10 then '1000k'
-end as thuong
-    from nhanvien nv;
+select nv.hoten,
+       case
+           when year(now()) - year(nv.ngayvaolam) < 1 then '200k'
+           when year(now()) - year(nv.ngayvaolam) >= 1 and year(now()) - year(nv.ngayvaolam) < 3 then '400k'
+           when year(now()) - year(nv.ngayvaolam) >= 3 and year(now()) - year(nv.ngayvaolam) < 5 then '600k'
+           when year(now()) - year(nv.ngayvaolam) >= 5 and year(now()) - year(nv.ngayvaolam) < 10 then '800k'
+           when year(now()) - year(nv.ngayvaolam) >= 10 then '1000k'
+           end as thuong
+from nhanvien nv;
 
 # 28.Cho biết những sản phẩm thuộc ngành hàng Hóa mỹ phẩm
 select sp.tenSP
@@ -501,3 +514,4 @@ select sp.tenSP, count(sp.maloaiSP)
 from sanpham sp
          join loaisp lsp on sp.maloaiSP = lsp.maloaiSP
 group by sp.tenSP;
+
