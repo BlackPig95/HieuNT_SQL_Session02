@@ -465,7 +465,14 @@ from nhanvien nv;
 # niên <1 năm thưởng 200.000 - 1 năm <= thâm niên < 3 năm thưởng
 # 400.000 - 3 năm <= thâm niên < 5 năm thưởng 600.000 - 5 năm <= thâm
 # niên < 10 năm thưởng 800.000 - thâm niên >= 10 năm thưởng 1.000.000
-#Không biết cách hiển thị thông tin không có trong bảng
+select nv.hoten, case
+    when year(now()) - year(nv.ngayvaolam) <1 then '200k'
+    when year(now()) - year(nv.ngayvaolam) >=1 and year(now()) - year(nv.ngayvaolam) <3 then '400k'
+    when year(now()) - year(nv.ngayvaolam) >=3 and year(now()) - year(nv.ngayvaolam) <5 then '600k'
+    when year(now()) - year(nv.ngayvaolam) >=5 and year(now()) - year(nv.ngayvaolam) <10 then '800k'
+    when year(now()) - year(nv.ngayvaolam) >=10 then '1000k'
+end as thuong
+    from nhanvien nv;
 
 # 28.Cho biết những sản phẩm thuộc ngành hàng Hóa mỹ phẩm
 select sp.tenSP
