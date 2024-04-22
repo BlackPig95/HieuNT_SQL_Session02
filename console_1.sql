@@ -431,6 +431,7 @@ from nhanvien nv;
 #Cách 2 join 2 lần chọn lại thành một bảng mới => mỗi lần chọn là 1 cột trong bảng
 #Không đặt được alias cho virtual table sau câu lệnh from??
 select countnam, countnu
+#2 select join lại nhưng chưa có một select khác để ghép thành 1 bảng
 from ((select count(nv.gioitinh) as countnam from nhanvien nv where nv.gioitinh = 1)
     as nam join (select count(nv.gioitinh) as countnu from nhanvien nv where nv.gioitinh = 0) as nu);
 #Cách 3
@@ -441,6 +442,14 @@ select case nv.gioitinh
        count(nv.gioitinh)
 from nhanvien nv
 group by nv.gioitinh;
+#Cách 4
+select if(nv.gioitinh, 'nam','nu'), count(nv.gioitinh)
+from nhanvien nv
+where nv.gioitinh = 1
+union
+select if(nv.gioitinh, 'nam','nu'), count(nv.gioitinh)
+from nhanvien nv
+where nv.gioitinh = 0;
 # 24.Cho biết mã nhân viên, tên nhân viên, số năm làm việc của những nhân viên
 # có thâm niên cao nhất.
 insert into NhanVien (manv, hoten, gioitinh, diachi, ngaysinh, dienthoai, email, noisinh, ngayvaolam, maNQL)
